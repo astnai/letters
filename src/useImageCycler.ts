@@ -38,7 +38,6 @@ const images: Record<string, string[]> = {
   ],
   i: [
     "/letters/06-i/letter-i-1.png",
-    "/letters/06-i/letter-i-2.png",
     "/letters/06-i/letter-i-3.png",
     "/letters/06-i/letter-i-4.png",
     "/letters/06-i/letter-i-5.png",
