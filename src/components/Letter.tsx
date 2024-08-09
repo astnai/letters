@@ -1,81 +1,100 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useImageCycler } from "../useImageCycler";
+import { LetterPosition } from "../type";
 
 interface LetterProps {
   name: string;
-  images: string[];
-  position: { x: number; y: number };
-  onDrag: (name: string, position: { x: number; y: number }) => void;
+  position: LetterPosition;
+  onDrag: (name: string, position: LetterPosition) => void;
 }
 
-const Letter: React.FC<LetterProps> = ({ name, images, position, onDrag }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(
-    Math.floor(Math.random() * images.length)
-  );
-  const letterRef = useRef<HTMLDivElement>(null);
+const Letter: React.FC<LetterProps> = React.memo(
+  ({ name, position, onDrag }) => {
+    const [isDragging, setIsDragging] = useState(false);
+    const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const letterRef = useRef<HTMLDivElement>(null);
+    const currentImage = useImageCycler(name);
 
-  useEffect(() => {
-    const changeImage = () => {
-      let newIndex;
-      do {
-        newIndex = Math.floor(Math.random() * images.length);
-      } while (newIndex === currentImageIndex);
-      setCurrentImageIndex(newIndex);
-    };
-
-    const interval = setInterval(changeImage, 500);
-
-    return () => clearInterval(interval);
-  }, [images, currentImageIndex]);
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging && letterRef.current) {
-        const newX = e.clientX - letterRef.current.offsetWidth / 2;
-        const newY = e.clientY - letterRef.current.offsetHeight / 2;
-        onDrag(name, { x: newX, y: newY });
+    const handleStart = useCallback((clientX: number, clientY: number) => {
+      if (letterRef.current) {
+        const rect = letterRef.current.getBoundingClientRect();
+        setOffset({
+          x: clientX - rect.left,
+          y: clientY - rect.top,
+        });
       }
-    };
+      setIsDragging(true);
+    }, []);
 
-    document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("mousemove", handleMouseMove);
+    const handleEnd = useCallback(() => {
+      setIsDragging(false);
+    }, []);
 
-    return () => {
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [isDragging, onDrag, name]);
+    const handleMove = useCallback(
+      (clientX: number, clientY: number) => {
+        if (isDragging) {
+          const newX = clientX - offset.x;
+          const newY = clientY - offset.y;
+          onDrag(name, { x: newX, y: newY });
+        }
+      },
+      [isDragging, offset, onDrag, name]
+    );
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+    useEffect(() => {
+      const handleMouseUp = () => handleEnd();
+      const handleMouseMove = (e: MouseEvent) =>
+        handleMove(e.clientX, e.clientY);
+      const handleTouchEnd = () => handleEnd();
+      const handleTouchMove = (e: TouchEvent) => {
+        if (e.touches.length > 0) {
+          handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      };
 
-  return (
-    <div
-      ref={letterRef}
-      className={`absolute cursor-move transition-all duration-150 ease-out ${
-        isDragging ? "opacity-70" : ""
-      }`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: "150px", // Aumenta el tamaño de la letra aquí
-        height: "150px",
-      }}
-      onMouseDown={handleMouseDown}
-    >
-      <img
-        src={images[currentImageIndex]}
-        alt={name}
-        className="w-full h-full object-contain"
-      />
-    </div>
-  );
-};
+      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("touchend", handleTouchEnd);
+      document.addEventListener("touchmove", handleTouchMove);
+
+      return () => {
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+        document.removeEventListener("touchmove", handleTouchMove);
+      };
+    }, [handleEnd, handleMove]);
+
+    return (
+      <div
+        ref={letterRef}
+        className={`absolute cursor-move transition-all duration-150 ease-out ${
+          isDragging ? "opacity-70 scale-105" : ""
+        }`}
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: "150px",
+          height: "150px",
+        }}
+        onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          handleStart(e.touches[0].clientX, e.touches[0].clientY);
+        }}
+        role="button"
+        aria-label={`Drag letter ${name}`}
+        tabIndex={0}
+      >
+        <img
+          src={currentImage}
+          alt={`Letter ${name}`}
+          className="w-full h-full object-contain"
+          draggable="false"
+        />
+      </div>
+    );
+  }
+);
 
 export default Letter;
