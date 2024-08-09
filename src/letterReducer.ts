@@ -1,6 +1,6 @@
 import { LetterPosition } from "./type";
 
-const isMobile = window.innerWidth <= 768;
+const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
 export const initialState: Record<string, LetterPosition> = isMobile
   ? {

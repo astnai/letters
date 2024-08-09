@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const images: Record<string, string[]> = {
   a: [
@@ -45,19 +45,16 @@ const images: Record<string, string[]> = {
 };
 
 export const useImageCycler = (letterName: string) => {
-  const [currentImage, setCurrentImage] = useState(images[letterName][0]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const cycleImages = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images[letterName].length);
+  }, [letterName]);
 
   useEffect(() => {
-    const cycleImages = () => {
-      const currentIndex = images[letterName].indexOf(currentImage);
-      const nextIndex = (currentIndex + 1) % images[letterName].length;
-      setCurrentImage(images[letterName][nextIndex]);
-    };
-
     const intervalId = setInterval(cycleImages, 500);
-
     return () => clearInterval(intervalId);
-  }, [letterName, currentImage]);
+  }, [cycleImages]);
 
-  return currentImage;
+  return images[letterName][currentIndex];
 };
