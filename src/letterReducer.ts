@@ -5,19 +5,19 @@ const isMobile = window.innerWidth <= 768;
 export const initialState: Record<string, LetterPosition> = isMobile
   ? {
       a: { x: 10, y: 10 },
-      s: { x: 10, y: 170 },
-      t: { x: 10, y: 330 },
-      n: { x: 170, y: 10 },
-      a2: { x: 170, y: 170 },
-      i: { x: 170, y: 330 },
+      s: { x: 10, y: 270 },
+      t: { x: 10, y: 530 },
+      n: { x: 270, y: 10 },
+      a2: { x: 270, y: 270 },
+      i: { x: 270, y: 530 },
     }
   : {
-      a: { x: 0, y: 200 },
-      s: { x: 200, y: 200 },
-      t: { x: 400, y: 200 },
-      n: { x: 600, y: 200 },
-      a2: { x: 800, y: 200 },
-      i: { x: 1000, y: 200 },
+      a: { x: 0, y: 175 },
+      s: { x: 200, y: 175 },
+      t: { x: 400, y: 175 },
+      n: { x: 600, y: 175 },
+      a2: { x: 800, y: 175 },
+      i: { x: 1000, y: 175 },
     };
 
 type Action =

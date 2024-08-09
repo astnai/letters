@@ -68,14 +68,12 @@ const Letter: React.FC<LetterProps> = React.memo(
     return (
       <div
         ref={letterRef}
-        className={`absolute cursor-move transition-all duration-150 ease-out ${
-          isDragging ? "opacity-70 scale-105" : ""
-        }`}
+        className={`absolute cursor-move transition-all duration-150 ease-out 
+          ${isDragging ? "opacity-70 scale-105" : ""}
+          w-full h-full max-w-[250px] max-h-[250px]`}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: "150px",
-          height: "150px",
         }}
         onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
         onTouchStart={(e) => {
