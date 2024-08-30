@@ -1,10 +1,4 @@
-import React, {
-  useReducer,
-  useCallback,
-  useRef,
-  useEffect,
-  useState,
-} from "react";
+import React, { useReducer, useCallback, useRef, useEffect, useState } from "react";
 import Letter from "./components/Letter";
 import { letterReducer, initialState } from "./letterReducer";
 import { LetterPosition } from "./type";
@@ -22,12 +16,12 @@ const App: React.FC = () => {
   );
 
   useEffect(() => {
-    const updateContainerSize = () => {
+    function updateContainerSize() {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
         setContainerSize({ width, height });
       }
-    };
+    }
 
     updateContainerSize();
     window.addEventListener("resize", updateContainerSize);
@@ -35,11 +29,11 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const preventDefault = (e: TouchEvent) => {
+    function preventDefault(e: TouchEvent) {
       if (e.touches.length > 1) {
         e.preventDefault();
       }
-    };
+    }
 
     document.body.addEventListener("touchmove", preventDefault, {
       passive: false,
